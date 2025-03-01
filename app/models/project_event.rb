@@ -9,17 +9,17 @@ class ProjectEvent < ApplicationRecord
   validate :comment_requires_content
 
   def comment_requires_content
-    if event_type == 'comment' && content.blank?
+    if event_type == "comment" && content.blank?
       errors.add(:content, "can't be blank for a comment")
     end
   end
 
   def status_change?
-    event_type == 'status_change'
+    event_type == "status_change"
   end
 
   def comment?
-    event_type == 'comment'
+    event_type == "comment"
   end
 
   private
