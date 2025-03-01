@@ -1,0 +1,17 @@
+<h1>Projects</h1>
+
+<% if @projects.any? %>
+  <ul>
+    <% @projects.each do |project| %>
+      <li>
+        <strong><%= link_to project.name, project_path(project) %></strong>
+        <br>
+        Status: <%= project.status.humanize %>
+        <br>
+        Created: <%= project.created_at.strftime("%B %d, %Y") %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No projects available.</p>
+<% end %>

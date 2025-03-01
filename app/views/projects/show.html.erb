@@ -1,0 +1,74 @@
+<h1><%= @project.name %></h1>
+<p>Status: <%= @project.status.humanize %></p>
+
+<h2>Conversation History</h2>
+<% if @project_events.any? %>
+  <ul>
+    <% @project_events.each do |event| %>
+      <li>
+        <strong><%= event.user.name %></strong>
+        (<%= event.created_at.strftime("%b %d, %Y %H:%M") %>):
+        <% if event.comment? %>
+          Comment: <%= event.content %>
+        <% elsif event.status_change? %>
+          Status changed from 
+          <%= event.old_status.humanize || "N/A" %> 
+          to 
+          <%= event.new_status.humanize %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No conversation events yet.</p>
+<% end %>
+
+<h2>Add a New Event</h2>
+<%= form_with(model: [@project, @project_event]) do |f| %>
+  <div>
+    <%= f.label :event_type, "Event Type" %>
+    <%= f.select :event_type, options_for_select([['Comment', 'comment'], ['Status Change', 'status_change']]) %>
+  </div>
+
+  <!-- Comment fields -->
+  <div id="comment_fields" style="display: none;">
+    <%= f.label :content, "Comment" %>
+    <%= f.text_area :content %>
+  </div>
+
+  <!-- Status change fields -->
+  <div id="status_fields" style="display: none;">
+    <%= f.label :new_status, "New Status" %>
+    <%= f.select :new_status, options_for_select(Project::STATUS_OPTIONS.map { |status| [status.humanize, status] }), include_blank: true %>
+  </div>
+
+  <div>
+    <%= f.submit "Add Event" %>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    const eventTypeSelect = document.querySelector("select[name='project_event[event_type]']");
+    const commentFields = document.getElementById("comment_fields");
+    const statusFields = document.getElementById("status_fields");
+
+    function toggleFields() {
+      const value = eventTypeSelect.value;
+      if (value === "comment") {
+        commentFields.style.display = "block";
+        statusFields.style.display = "none";
+      } else if (value === "status_change") {
+        commentFields.style.display = "none";
+        statusFields.style.display = "block";
+      } else {
+        commentFields.style.display = "none";
+        statusFields.style.display = "none";
+      }
+    }
+
+    eventTypeSelect.addEventListener("change", toggleFields);
+    toggleFields();
+  });
+</script>
+
